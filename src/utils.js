@@ -100,21 +100,16 @@ function inverseDocumentFrequency(document){
     // calculates the inverse document frequency of every sentence
     const words_without_stopwords = prettify(document);
     const unique_words_set = uniqueWords(words_without_stopwords);
-
-    const sentences = document.split(".").map(item => item.trim());
-    sentences[0] = sentences[0].substring(146);
-
-    const lengthOfDocuments = sentences.length;
-    // prettifys each sentence so it doesn't have stopwords
-
+    const sentences = getSentences(document);
+    const lengthOfDocuments = sentences.length;    
     const wordCountAll = countWords(words_without_stopwords);
 
-    // counts words of each sentence
-    // as each sentence is a document
+    // as each sentence is a document 
+    // TODO: use map
     let wordCountSentences = [];
-    for (let i = 0; i <= lengthOfDocuments - 1; i ++){
-        wordCountSentences.push(countWords(prettify(sentences[i])));
-    }
+    sentences.forEach(sentence => {
+        wordCountSentences.push(countWords(prettify(sentence)));
+    });
 
     // calculate TF values of all documents
     let IDFVals = {};

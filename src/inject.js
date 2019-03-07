@@ -21,7 +21,11 @@
         "background-color": "black",
         "z-index": 10000,        
         "cursor": "wait",
-        "color": "#fff"
+        "color": "#fff",
+        "padding": "50px",
+        "opacity": "0.8",
+        "border-radius": "25px",
+        "box-shadow": "10px 10px gray"
     }).appendTo("body");
 
     function removeOverlay() {
