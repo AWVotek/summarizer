@@ -13,7 +13,7 @@
 
     let result = TFIDF(articles);    
     
-    $("<table id='overlay'><tbody>" + result + "</tbody></table>").css({
+    $(result).css({
         "position": "fixed",
         "top": "50%",
         "left": "50%",

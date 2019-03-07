@@ -67,8 +67,7 @@ function termFrequency(document){
 
     sentences[0] = sentences[0].substring(146);
 
-    const TFVals = countWords(words_without_stopwords)
-    const unique_words = uniqueWords(words_without_stopwords);
+    const TFVals = countWords(words_without_stopwords);
 
     // actually makes it TF values according to formula
     for (const [key, value] of Object.entries(TFVals)){
@@ -160,7 +159,25 @@ function inverseDocumentFrequency(document){
         }
         IDFSentences[sentences[i]] = temp_add / words_no_stop_words_length;
     }
-return IDFSentences;
+    return IDFSentences;
+}
+
+function sortResult(TFidfDict) {
+    let sortedSentences = [];
+    for (let sentence in TFidfDict) {
+        sortedSentences.push([sentence, TFidfDict[sentence]]);
+    }
+
+    sortedSentences.sort((a,b) => {
+        if (a[1] > b[1]) {
+            return -1;
+        } else if (a[1] < b[1]) {
+            return 1;
+        }
+        return 0;
+    });
+
+    return sortedSentences;
 }
 
 function TFIDF(documents){
@@ -176,33 +193,20 @@ function TFIDF(documents){
         }
     }
 
-    let max = 0.0;
-    let max2 = 0.0;
-    let max3 = 0.0;
+    let sortedSentences = sortResult(TFidfDict);    
 
-    let max_sentence = "";
-    let max2Sent = "";
-    let max3Sent = "";
+    let result = "<div id='overlay'>"
 
-    // finds the top 3 sentences in TFidfDict
-    for (const [key, value] of Object.entries(TFidfDict)){
-        if (TFidfDict[key] > max){
-            max = TFidfDict[key];
-            max_sentence = key;
-        }
-        else if (TFidfDict[key] > max2 && TFidfDict[key] < max){
-            max2 = TFidfDict[key];
-            max2Sent = key;
-        }
-        else if (TFidfDict[key] > max3 && TFidfDict[key] < max2 && TFidfDict[key] < max){
-            max3 = TFidfDict[key];
-            max3Sent = key;
+    if (sortedSentences.length < 3) {
+        result += "Der Text ist zu kurz, sorry!";
+    } else {
+        // summary should be 20% of the sentences, why? I don't know. I only guess.
+        let numberOfSentences = Math.floor(sortedSentences.length / 5);
+
+        for (let i=0; i <= numberOfSentences; i++) {
+            result += sortedSentences[i][0]+".<br>"
         }
     }
-
-    if (max_sentence === "") {
-        return "<tr><td>Der Text ist zu kurz, sorry!</td></tr>"
-    }
-
-    return "<tr><td>" + max_sentence + "</td></tr><tr><td>" + max2Sent + "</td></tr><tr><td>" + max3Sent + "</td></tr>";
+    
+    return result+"</div>";
 }
