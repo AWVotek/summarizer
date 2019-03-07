@@ -1,16 +1,12 @@
-function readStopsWords() {
-    return ["aber","als","am","an","auch","auf","aus","bei","bin","bis","bist","da","dadurch","daher","darum","das","daß","dass","dein","deine","dem","den","der","des","dessen","deshalb","die","dies","dieser","dieses","doch","dort","du","durch","ein","eine","einem","einen","einer","eines","er","es","euer","eure","für","hatte","hatten","hattest","hattet","hier","hinter","ich","ihr","ihre","im","in","ist","ja","jede","jedem","jeden","jeder","jedes","jener","jenes","jetzt","kann","kannst","können","könnt","machen","mein","meine","mit","muß","mußt","musst","müssen","müßt","nach","nachdem","nein","nicht","nun","oder","seid","sein","seine","sich","sie","sind","soll","sollen","sollst","sollt","sonst","soweit","sowie","und","unser","unsere","unter","vom","von","vor","wann","warum","was","weiter","weitere","wenn","wer","werde","werden","werdet","weshalb","wie","wieder","wieso","wir","wird","wirst","wo","woher","wohin","zu","zum","zur","über"];
-}
-
 function prettify(document){
     // Turns an array of words into lowercase and removes stopwords
-    const stopwords = readStopsWords();
+    const stopwords = ["aber","als","am","an","auch","auf","aus","bei","bin","bis","bist","da","dadurch","daher","darum","das","daß","dass","dein","deine","dem","den","der","des","dessen","deshalb","die","dies","dieser","dieses","doch","dort","du","durch","ein","eine","einem","einen","einer","eines","er","es","euer","eure","für","hatte","hatten","hattest","hattet","hier","hinter","ich","ihr","ihre","im","in","ist","ja","jede","jedem","jeden","jeder","jedes","jener","jenes","jetzt","kann","kannst","können","könnt","machen","mein","meine","mit","muß","mußt","musst","müssen","müßt","nach","nachdem","nein","nicht","nun","oder","seid","sein","seine","sich","sie","sind","soll","sollen","sollst","sollt","sonst","soweit","sowie","und","unser","unsere","unter","vom","von","vor","wann","warum","was","weiter","weitere","wenn","wer","werde","werden","werdet","weshalb","wie","wieder","wieso","wir","wird","wirst","wo","woher","wohin","zu","zum","zur","über"];
     // turn document into lowercase words, remove all stopwords
-    var document = document.replace(/[.,?!]/g, '');
+    var document = document.replace(/[.,?!"()]/g, '');
     let document_in_lowercase = document.split(" ").map((x) => { 
-        return x.toLowerCase() 
+        return x.toLowerCase();
     });
-    return document_in_lowercase.filter( x => !stopwords.includes(x) );
+    return document_in_lowercase.filter( x => !stopwords.includes(x));
 }
 
 function uniqueWords(words){
@@ -33,6 +29,7 @@ function countWords(words){
             }
         }
     }
+
     return dict;
 }
 
@@ -43,7 +40,7 @@ function getSentences(document) {
     // gets rid of trailing spaces
     const sentences1 = document.split(".").map(item => item.trim());
 
-    // there are more than points
+    // there are more than points to seperate sentences
     const sentences2 = [];
     sentences1.forEach(sentence => {
         if (sentence.indexOf("?") === -1) {
@@ -60,45 +57,43 @@ function getSentences(document) {
     return sentences2;
 }
 
+/**
+ * Calculate the TF of sentences. Sum of all TFs of words in sentences divided by number of words in sentence - stop words
+ * @param {array} sentences 
+ * @param {dict} TFVals 
+ */
+function calculateTFSentences(sentences, TFVals) {
+    // splits it up into sentences now
+    var TFSentences = {};
+    // for every sentence
+    sentences.forEach(sentence => {
+        let sentenceTF = 0.0;
+        let prettySentence = prettify(sentence);
+        let numberOfNonStopWords = prettySentence.length;
+        
+        prettySentence.forEach(word => {
+            sentenceTF += TFVals[word];
+        });
+
+        TFSentences[sentence] = sentenceTF / numberOfNonStopWords;
+    });
+
+    return TFSentences;
+}
+
 function termFrequency(document){
     // calculates term frequency of each sentence
     let words_without_stopwords = prettify(document);
     const sentences = getSentences(document);
 
-    sentences[0] = sentences[0].substring(146);
-
     const TFVals = countWords(words_without_stopwords);
-
+    const totalNumberOfWords = words_without_stopwords.length;
     // actually makes it TF values according to formula
-    for (const [key, value] of Object.entries(TFVals)){
-        TFVals[key] = TFVals[key] / words_without_stopwords.length;
+    for (const [word, occurence] of Object.entries(TFVals)){
+        TFVals[word] = occurence / totalNumberOfWords;
     }
 
-    // splits it up into sentences now
-    var TFSentences = {};
-    // for every sentence
-    for (let i = 0; i <= sentences.length - 1; i ++){
-        // for every word in that sentence
-        let sentence_split_words = sentences[i].split(" ");
-        // get the assiocated TF values of each word
-        // temp.add is the "TF" value of a sentence, we need to divide it at the end
-        let temp_add = 0.0;
-        let words_no_stop_words_length = prettify(sentences[i]).length;
-        for (let x = 0; x <= sentence_split_words.length - 1; x++){
-            // get the assiocated TF value and add it to temp_add
-            if (sentence_split_words[x].toLowerCase() in TFVals){
-                // adds all the TF values up
-                temp_add = temp_add + TFVals[sentence_split_words[x].toLowerCase()];
-            }
-            else{
-                // nothing, since it's a stop word.
-            }
-        }
-        // TF sentences divide by X number of items on top
-        TFSentences[sentences[i]] = temp_add / words_no_stop_words_length;
-    }
-    
-    return TFSentences;
+    return calculateTFSentences(sentences, TFVals);
 }
 
 function inverseDocumentFrequency(document){
