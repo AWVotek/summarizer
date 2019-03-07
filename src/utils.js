@@ -36,6 +36,9 @@ function countWords(words){
     return dict;
 }
 
+/*
+TODO: Filter artefacts like version numbers, german dates etc. with dots
+*/
 function getSentences(document) {
     // gets rid of trailing spaces
     const sentences1 = document.split(".").map(item => item.trim());
@@ -173,7 +176,6 @@ function TFIDF(documents){
         }
     }
 
-
     let max = 0.0;
     let max2 = 0.0;
     let max3 = 0.0;
@@ -198,11 +200,9 @@ function TFIDF(documents){
         }
     }
 
-    let result = [];
-
-    result.push(max_sentence);
-    result.push(max2Sent);
-    result.push(max3Sent);
+    if (max_sentence === "") {
+        return "<tr><td>Der Text ist zu kurz, sorry!</td></tr>"
+    }
 
     return "<tr><td>" + max_sentence + "</td></tr><tr><td>" + max2Sent + "</td></tr><tr><td>" + max3Sent + "</td></tr>";
 }

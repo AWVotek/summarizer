@@ -3,9 +3,6 @@
     let articles = window.getSelection().toString();
     let url = window.location.href;
 
-    console.log(url);
-    console.log(url.indexOf("spiegel.de"));
-
     if (articles === "" && url.indexOf("spiegel.de") !== -1) {
         // just place a div at top right
         var jq = document.createElement('script');
@@ -14,12 +11,7 @@
         articles = p.text();
     }
 
-    console.log(articles);    
-
-
     let result = TFIDF(articles);    
-
-    //alert(TFIDF(articles));
     
     $("<table id='overlay'><tbody>" + result + "</tbody></table>").css({
         "position": "fixed",
